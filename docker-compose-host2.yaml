@@ -22,7 +22,7 @@ services:
     image: hyperledger/fabric-zookeeper
     restart: always
     environment:
-      - ZOO_MY_ID=0
+      - ZOO_MY_ID=1
       - ZOO_SERVERS=server.0=zookeeper0.example.com:2888:3888 server.1=0.0.0.0:2888:3888 server.2=zookeeper2.example.com:2888:3888
       - ZOO_DATA_DIR=/data
       - ZOO_DATA_LOG_DIR=/data
@@ -44,7 +44,7 @@ services:
     image: hyperledger/fabric-kafka
     restart: always
     environment:
-      - KAFKA_BROKER_ID=0
+      - KAFKA_BROKER_ID=1
       - HOST_NAME=kafka1.example.com
       - KAFKA_ADVERTISED_HOST_NAME=kafka1.example.com
       - KAFKA_MESSAGE_MAX_BYTES=103809024 # 99 * 1024 * 1024 B
@@ -77,7 +77,7 @@ services:
       - ORDERER_GENERAL_LOCALMSPID=OrdererMSP
       - ORDERER_GENERAL_LOCALMSPDIR=/var/hyperledger/orderer/msp
       # enabled TLS
-      - ORDERER_GENERAL_TLS_ENABLED=false
+      - ORDERER_GENERAL_TLS_ENABLED=true
       - ORDERER_GENERAL_TLS_PRIVATEKEY=/var/hyperledger/orderer/tls/server.key
       - ORDERER_GENERAL_TLS_CERTIFICATE=/var/hyperledger/orderer/tls/server.crt
       - ORDERER_GENERAL_TLS_ROOTCAS=[/var/hyperledger/orderer/tls/ca.crt]
@@ -140,9 +140,9 @@ services:
     depends_on:
       - couchdb1-org2
     extra_hosts:
-      - orderer0.example.com:${orderer0_example_com}
-      - orderer1.example.com:${orderer1_example_com}
-      - orderer2.example.com:${orderer2_example_com}
+      - orderer0.orderer.example.com:${orderer0_orderer_example_com}
+      - orderer1.orderer.example.com:${orderer1_orderer_example_com}
+      - orderer2.orderer.example.com:${orderer2_orderer_example_com}
       
 
   cli:
@@ -153,8 +153,8 @@ services:
     environment:
       - GOPATH=/opt/gopath
       - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
-      #- FABRIC_LOGGING_SPEC=DEBUG
-      - FABRIC_LOGGING_SPEC=INFO
+      - FABRIC_LOGGING_SPEC=DEBUG
+      #- FABRIC_LOGGING_SPEC=INFO
       - CORE_PEER_ID=cli
       - CORE_PEER_ADDRESS=peer0.org2.example.com:7051
       - CORE_PEER_LOCALMSPID=org2MSP
@@ -178,6 +178,6 @@ services:
       - byfn
     extra_hosts:
       - peer0.org2.example.com:${peer0_org2_example_com}
-      - orderer0.example.com:${orderer0_example_com}
-      - orderer1.example.com:${orderer1_example_com}
-      - orderer2.example.com:${orderer2_example_com}
+      - orderer0.orderer.example.com:${orderer0_orderer_example_com}
+      - orderer1.orderer.example.com:${orderer1_orderer_example_com}
+      - orderer2.orderer.example.com:${orderer2_orderer_example_com}

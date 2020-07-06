@@ -25,17 +25,17 @@
 
 - hosts: host1
   environment:
-    orderer0_example_com: "172.21.28.226"
+    orderer0_orderer_example_com: "172.21.28.226"
     couchdb0_example_com: "172.21.28.226"
     peer0_org1_example_com: "172.21.28.226"
     kafka0_example_com: "172.21.28.226"
     zookeeper0_example_com: "172.21.28.226"
-    orderer1_example_com: "172.21.28.225"
+    orderer1_orderer_example_com: "172.21.28.225"
     couchdb1_example_com: "172.21.28.225" 
     peer0_org2_example_com: "172.21.28.225" 
     kafka1_example_com: "172.21.28.225" 
     zookeeper1_example_com: "172.21.28.225" 
-    orderer2_example_com: "172.21.28.224"
+    orderer2_orderer_example_com: "172.21.28.224"
     couchdb2_example_com: "172.21.28.224" 
     peer0_org3_example_com: "172.21.28.224" 
     kafka2_example_com: "172.21.28.224" 
@@ -55,17 +55,17 @@
 
 - hosts: host2
   environment:
-    orderer0_example_com: "172.21.28.226"
+    orderer0_orderer_example_com: "172.21.28.226"
     couchdb0_example_com: "172.21.28.226"
     peer0_org1_example_com: "172.21.28.226"
     kafka0_example_com: "172.21.28.226"
     zookeeper0_example_com: "172.21.28.226"
-    orderer1_example_com: "172.21.28.225"
+    orderer1_orderer_example_com: "172.21.28.225"
     couchdb1_example_com: "172.21.28.225" 
     peer0_org2_example_com: "172.21.28.225" 
     kafka1_example_com: "172.21.28.225" 
     zookeeper1_example_com: "172.21.28.225" 
-    orderer2_example_com: "172.21.28.224"
+    orderer2_orderer_example_com: "172.21.28.224"
     couchdb2_example_com: "172.21.28.224" 
     peer0_org3_example_com: "172.21.28.224" 
     kafka2_example_com: "172.21.28.224" 
@@ -84,17 +84,17 @@
 
 - hosts: host3
   environment:
-    orderer0_example_com: "172.21.28.226"
+    orderer0_orderer_example_com: "172.21.28.226"
     couchdb0_example_com: "172.21.28.226"
     peer0_org1_example_com: "172.21.28.226"
     kafka0_example_com: "172.21.28.226"
     zookeeper0_example_com: "172.21.28.226"
-    orderer1_example_com: "172.21.28.225"
+    orderer1_orderer_example_com: "172.21.28.225"
     couchdb1_example_com: "172.21.28.225" 
     peer0_org2_example_com: "172.21.28.225" 
     kafka1_example_com: "172.21.28.225" 
     zookeeper1_example_com: "172.21.28.225" 
-    orderer2_example_com: "172.21.28.224"
+    orderer2_orderer_example_com: "172.21.28.224"
     couchdb2_example_com: "172.21.28.224" 
     peer0_org3_example_com: "172.21.28.224" 
     kafka2_example_com: "172.21.28.224" 

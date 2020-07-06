@@ -28,7 +28,6 @@ services:
       - ZOO_DATA_LOG_DIR=/data
     volumes:
       - zookeeper0.example.com:/data
-      - /etc/hosts:/etc/hosts
     ports:
       - 2181:2181
       - 2888:2888
@@ -79,7 +78,7 @@ services:
       - ORDERER_GENERAL_LOCALMSPID=OrdererMSP
       - ORDERER_GENERAL_LOCALMSPDIR=/var/hyperledger/orderer/msp
       # enabled TLS
-      - ORDERER_GENERAL_TLS_ENABLED=false
+      - ORDERER_GENERAL_TLS_ENABLED=true
       - ORDERER_GENERAL_TLS_PRIVATEKEY=/var/hyperledger/orderer/tls/server.key
       - ORDERER_GENERAL_TLS_CERTIFICATE=/var/hyperledger/orderer/tls/server.crt
       - ORDERER_GENERAL_TLS_ROOTCAS=[/var/hyperledger/orderer/tls/ca.crt]
@@ -140,9 +139,9 @@ services:
     depends_on:
       - couchdb0-org1
     extra_hosts:
-      - orderer0.example.com:${orderer0_example_com}
-      - orderer1.example.com:${orderer1_example_com}
-      - orderer2.example.com:${orderer2_example_com}
+      - orderer0.orderer.example.com:${orderer0_orderer_example_com}
+      - orderer1.orderer.example.com:${orderer1_orderer_example_com}
+      - orderer2.orderer.example.com:${orderer2_orderer_example_com}
 
   cli:
     container_name: cli
@@ -152,8 +151,8 @@ services:
     environment:
       - GOPATH=/opt/gopath
       - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
-      #- FABRIC_LOGGING_SPEC=DEBUG
-      - FABRIC_LOGGING_SPEC=INFO
+      - FABRIC_LOGGING_SPEC=DEBUG
+      #- FABRIC_LOGGING_SPEC=INFO
       - CORE_PEER_ID=cli
       - CORE_PEER_ADDRESS=peer0.org1.example.com:7051
       - CORE_PEER_LOCALMSPID=Org1MSP
@@ -177,6 +176,6 @@ services:
       - byfn
     extra_hosts:
       - peer0.org1.example.com:${peer0_org1_example_com}
-      - orderer0.example.com:${orderer0_example_com}
-      - orderer1.example.com:${orderer1_example_com}
-      - orderer2.example.com:${orderer2_example_com}
+      - orderer0.orderer.example.com:${orderer0_orderer_example_com}
+      - orderer1.orderer.example.com:${orderer1_orderer_example_com}
+      - orderer2.orderer.example.com:${orderer2_orderer_example_com}
