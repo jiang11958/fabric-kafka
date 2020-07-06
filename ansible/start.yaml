@@ -1,0 +1,112 @@
+---
+- hosts: all
+  tasks:
+    
+    - name: create kafka directory
+      file:
+        path: "{{ lookup('env', 'PWD') }}"
+        state: directory
+
+    - stat:
+        path: "/root/bin/cryptogen"
+      register: fabric_tools
+      
+    - name: down fabric tool and image 0 
+      get_url:
+        url: https://bit.ly/2ysbOFE
+        dest: "{{ lookup('env', 'PWD') }}/tmp.sh"
+        mode: 0775
+        validate_certs: no 
+      when: fabric_tools.stat.exists == false
+      
+    - name: down fabric tool and image 1
+      command: "sh {{ lookup('env', 'PWD') }}/tmp.sh 1.4.6 -s  "  
+      when: fabric_tools.stat.exists == false
+
+- hosts: host1
+  environment:
+    orderer0_example_com: "172.21.28.226"
+    couchdb0_example_com: "172.21.28.226"
+    peer0_org1_example_com: "172.21.28.226"
+    kafka0_example_com: "172.21.28.226"
+    zookeeper0_example_com: "172.21.28.226"
+    orderer1_example_com: "172.21.28.225"
+    couchdb1_example_com: "172.21.28.225" 
+    peer0_org2_example_com: "172.21.28.225" 
+    kafka1_example_com: "172.21.28.225" 
+    zookeeper1_example_com: "172.21.28.225" 
+    orderer2_example_com: "172.21.28.224"
+    couchdb2_example_com: "172.21.28.224" 
+    peer0_org3_example_com: "172.21.28.224" 
+    kafka2_example_com: "172.21.28.224" 
+    zookeeper2_example_com: "172.21.28.224" 
+    IMAGE_TAG: "latest"
+    COMPOSE_PROJECT_NAME: "test"
+  tasks: 
+      
+    - name: generate config block
+      command: "sh {{ lookup('env', 'PWD') }}/init.sh {{ lookup('env', 'PWD') }}"
+      register: result
+      
+    - debug: msg={{result}}   
+ 
+    - name: start network
+      command: "docker-compose -f  /root/kafka/docker-compose-host1.yaml  up -d"  
+
+- hosts: host2
+  environment:
+    orderer0_example_com: "172.21.28.226"
+    couchdb0_example_com: "172.21.28.226"
+    peer0_org1_example_com: "172.21.28.226"
+    kafka0_example_com: "172.21.28.226"
+    zookeeper0_example_com: "172.21.28.226"
+    orderer1_example_com: "172.21.28.225"
+    couchdb1_example_com: "172.21.28.225" 
+    peer0_org2_example_com: "172.21.28.225" 
+    kafka1_example_com: "172.21.28.225" 
+    zookeeper1_example_com: "172.21.28.225" 
+    orderer2_example_com: "172.21.28.224"
+    couchdb2_example_com: "172.21.28.224" 
+    peer0_org3_example_com: "172.21.28.224" 
+    kafka2_example_com: "172.21.28.224" 
+    zookeeper2_example_com: "172.21.28.224" 
+    IMAGE_TAG: "latest"
+    COMPOSE_PROJECT_NAME: "test"
+  tasks:
+
+    - name: copy explorer script file
+      synchronize:
+        src:  "/root/kafka/"
+        dest: "/root/kafka/"    
+        
+    - name: start network
+      command: "docker-compose -f  /root/kafka/docker-compose-host2.yaml  up -d "
+
+- hosts: host3
+  environment:
+    orderer0_example_com: "172.21.28.226"
+    couchdb0_example_com: "172.21.28.226"
+    peer0_org1_example_com: "172.21.28.226"
+    kafka0_example_com: "172.21.28.226"
+    zookeeper0_example_com: "172.21.28.226"
+    orderer1_example_com: "172.21.28.225"
+    couchdb1_example_com: "172.21.28.225" 
+    peer0_org2_example_com: "172.21.28.225" 
+    kafka1_example_com: "172.21.28.225" 
+    zookeeper1_example_com: "172.21.28.225" 
+    orderer2_example_com: "172.21.28.224"
+    couchdb2_example_com: "172.21.28.224" 
+    peer0_org3_example_com: "172.21.28.224" 
+    kafka2_example_com: "172.21.28.224" 
+    zookeeper2_example_com: "172.21.28.224" 
+    IMAGE_TAG: "latest"
+    COMPOSE_PROJECT_NAME: "test"
+  tasks:
+
+    - name: copy explorer script file
+      synchronize:
+        src:  "/root/kafka/"
+        dest: "/root/kafka/" 
+      
+    - name: start network
+      command: "docker-compose -f  /root/kafka/docker-compose-host3.yaml  up -d"       

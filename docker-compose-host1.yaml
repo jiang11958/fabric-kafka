@@ -1,0 +1,182 @@
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+version: '2'
+
+volumes:
+  zookeeper0.example.com:
+  kafka0.example.com:
+  orderer0.orderer.example.com:
+  couchdb0-org1:
+  peer0.org1.example.com:
+
+networks:
+  byfn:
+
+services:
+  
+  zookeeper0.example.com:
+    container_name: zookeeper0.example.com
+    image: hyperledger/fabric-zookeeper
+    restart: always
+    environment:
+      - ZOO_MY_ID=0
+      - ZOO_SERVERS=server.0=0.0.0.0:2888:3888 server.1=zookeeper1.example.com:2888:3888 server.2=zookeeper2.example.com:2888:3888
+      - ZOO_DATA_DIR=/data
+      - ZOO_DATA_LOG_DIR=/data
+    volumes:
+      - zookeeper0.example.com:/data
+      - /etc/hosts:/etc/hosts
+    ports:
+      - 2181:2181
+      - 2888:2888
+      - 3888:3888
+    networks:
+      - byfn
+    extra_hosts:
+      - zookeeper1.example.com:${zookeeper1_example_com}
+      - zookeeper2.example.com:${zookeeper2_example_com}
+      
+      
+  kafka0.example.com:
+    container_name: kafka0.example.com
+    image: hyperledger/fabric-kafka
+    restart: always
+    environment:
+      - KAFKA_BROKER_ID=0
+      - HOST_NAME=kafka0.example.com
+      - KAFKA_ADVERTISED_HOST_NAME=kafka0.example.com
+      - KAFKA_MESSAGE_MAX_BYTES=103809024 # 99 * 1024 * 1024 B
+      - KAFKA_REPLICA_FETCH_MAX_BYTES=103809024 # 99 * 1024 * 1024 B
+      - KAFKA_UNCLEAN_LEADER_ELECTION_ENABLE=false
+      - KAFKA_MIN_INSYNC_REPLICAS=2
+      - KAFKA_DEFAULT_REPLICATION_FACTOR=3
+      - KAFKA_ZOOKEEPER_CONNECT=zookeeper0.example.com:2181,zookeeper1.example.com:2181,zookeeper2.example.com:2181
+    volumes:
+      - kafka0.example.com:/tmp/kafka-logs
+    networks:
+      - byfn
+    ports:
+      - 9092:9092
+    extra_hosts:
+      - kafka1.example.com:${kafka1_example_com}
+      - zookeeper1.example.com:${zookeeper1_example_com}
+      - kafka2.example.com:${kafka2_example_com}
+      - zookeeper2.example.com:${zookeeper2_example_com}
+      - zookeeper0.example.com:${zookeeper0_example_com}
+      
+      
+  orderer0.orderer.example.com:
+    container_name: orderer0.orderer.example.com
+    image: hyperledger/fabric-orderer
+    environment:
+      - ORDERER_GENERAL_LOGLEVEL=INFO
+      - ORDERER_GENERAL_LISTENADDRESS=0.0.0.0
+      - ORDERER_GENERAL_GENESISMETHOD=file
+      - ORDERER_GENERAL_GENESISFILE=/var/hyperledger/orderer/orderer.genesis.block
+      - ORDERER_GENERAL_LOCALMSPID=OrdererMSP
+      - ORDERER_GENERAL_LOCALMSPDIR=/var/hyperledger/orderer/msp
+      # enabled TLS
+      - ORDERER_GENERAL_TLS_ENABLED=false
+      - ORDERER_GENERAL_TLS_PRIVATEKEY=/var/hyperledger/orderer/tls/server.key
+      - ORDERER_GENERAL_TLS_CERTIFICATE=/var/hyperledger/orderer/tls/server.crt
+      - ORDERER_GENERAL_TLS_ROOTCAS=[/var/hyperledger/orderer/tls/ca.crt]
+      - ORDERER_KAFKA_RETRY_SHORTINTERVAL=1s
+      - ORDERER_KAFKA_RETRY_SHORTTOTAL=30s
+      - ORDERER_KAFKA_VERBOSE=true
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric
+    command: orderer
+    volumes:
+      - ./channel-artifacts/genesis.block:/var/hyperledger/orderer/orderer.genesis.block
+      - ./crypto-config/ordererOrganizations/orderer.example.com/orderers/orderer0.orderer.example.com/msp:/var/hyperledger/orderer/msp
+      - ./crypto-config/ordererOrganizations/orderer.example.com/orderers/orderer0.orderer.example.com/tls/:/var/hyperledger/orderer/tls
+      - orderer0.orderer.example.com:/var/hyperledger/production/orderer
+    networks:
+      - byfn
+    ports:
+      - 7050:7050
+    extra_hosts:
+      - couchdb0.example.com:${couchdb0_example_com}
+      - peer0.org1.example.com:${peer0_org1_example_com}
+      - kafka0.example.com:${kafka0_example_com}
+      - zookeeper0.example.com:${zookeeper0_example_com}
+      - couchdb1.example.com:${couchdb1_example_com}
+      - peer0.org2.example.com:${peer0_org2_example_com}
+      - kafka1.example.com:${kafka1_example_com}
+      - zookeeper1.example.com:${zookeeper1_example_com}
+      - couchdb2.example.com:${couchdb2_example_com}
+      - peer0.org3.example.com:${peer0_org3_example_com}
+      - kafka2.example.com:${kafka2_example_com}
+      - zookeeper2.example.com:${zookeeper2_example_com}
+    
+  couchdb0-org1:
+    container_name: couchdb0-org1
+    image: hyperledger/fabric-couchdb
+    restart: always
+    environment:
+      - COUCHDB_USER=admin
+      - COUCHDB_PASSWORD=adminpw
+    ports:
+      - 5984:5984
+    networks:
+      - byfn  
+
+
+
+  peer0.org1.example.com:
+    container_name: peer0.org1.example.com
+    extends:
+      file:  base/docker-compose-base.yaml
+      service: peer0.org1.example.com
+    environment:
+      - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdb0-org1:5984
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME=admin
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=adminpw
+    networks:
+      - byfn
+    depends_on:
+      - couchdb0-org1
+    extra_hosts:
+      - orderer0.example.com:${orderer0_example_com}
+      - orderer1.example.com:${orderer1_example_com}
+      - orderer2.example.com:${orderer2_example_com}
+
+  cli:
+    container_name: cli
+    image: hyperledger/fabric-tools:$IMAGE_TAG
+    tty: true
+    stdin_open: true
+    environment:
+      - GOPATH=/opt/gopath
+      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+      #- FABRIC_LOGGING_SPEC=DEBUG
+      - FABRIC_LOGGING_SPEC=INFO
+      - CORE_PEER_ID=cli
+      - CORE_PEER_ADDRESS=peer0.org1.example.com:7051
+      - CORE_PEER_LOCALMSPID=Org1MSP
+      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_TLS_CERT_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/server.crt
+      - CORE_PEER_TLS_KEY_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/server.key
+      - CORE_PEER_TLS_ROOTCERT_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt
+      - CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp
+      - GODEBUG=netdns=go
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
+    command: /bin/bash
+    volumes:
+        - /var/run/:/host/var/run/
+        - ./chaincode/:/opt/gopath/src/github.com/chaincode
+        - ./crypto-config:/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/
+        - ./scripts:/opt/gopath/src/github.com/hyperledger/fabric/peer/scripts/
+        - ./channel-artifacts:/opt/gopath/src/github.com/hyperledger/fabric/peer/channel-artifacts
+    depends_on:
+      - peer0.org1.example.com
+    networks:
+      - byfn
+    extra_hosts:
+      - peer0.org1.example.com:${peer0_org1_example_com}
+      - orderer0.example.com:${orderer0_example_com}
+      - orderer1.example.com:${orderer1_example_com}
+      - orderer2.example.com:${orderer2_example_com}
