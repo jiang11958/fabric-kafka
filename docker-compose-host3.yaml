@@ -153,7 +153,7 @@ services:
       #- FABRIC_LOGGING_SPEC=INFO
       - CORE_PEER_ID=cli
       - CORE_PEER_ADDRESS=peer0.org3.example.com:7051
-      - CORE_PEER_LOCALMSPID=org3MSP
+      - CORE_PEER_LOCALMSPID=Org3MSP
       - CORE_PEER_TLS_ENABLED=true
       - CORE_PEER_TLS_CERT_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org3.example.com/peers/peer0.org3.example.com/tls/server.crt
       - CORE_PEER_TLS_KEY_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org3.example.com/peers/peer0.org3.example.com/tls/server.key

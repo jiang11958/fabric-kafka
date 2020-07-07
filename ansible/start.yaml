@@ -52,7 +52,10 @@
  
     - name: start network
       command: "docker-compose -f  /root/kafka/docker-compose-host1.yaml  up -d"  
+    
 
+    
+    
 - hosts: host2
   environment:
     orderer0_orderer_example_com: "172.21.28.226"
@@ -82,6 +85,8 @@
     - name: start network
       command: "docker-compose -f  /root/kafka/docker-compose-host2.yaml  up -d "
 
+
+
 - hosts: host3
   environment:
     orderer0_orderer_example_com: "172.21.28.226"
@@ -109,4 +114,29 @@
         dest: "/root/kafka/" 
       
     - name: start network
-      command: "docker-compose -f  /root/kafka/docker-compose-host3.yaml  up -d"       
+      command: "docker-compose -f  /root/kafka/docker-compose-host3.yaml  up -d"     
+      
+       
+    
+- hosts: all
+  tasks:
+  
+    - name: timed wait
+      pause: seconds=30 
+
+  
+    - name: join channnel and install chaincode and instantiate
+      command: "docker exec  cli bash -c  '/opt/gopath/src/github.com/hyperledger/fabric/peer/scripts/init.sh 1'"
+      register: result  
+      when:  '"host1" in group_names'    
+      
+    - debug: msg={{result}}  
+      when:  '"host1" in group_names'    
+
+    - name: join channnel and install chaincode
+      command: "docker exec  cli bash -c  '/opt/gopath/src/github.com/hyperledger/fabric/peer/scripts/init.sh 0'"
+      register: result  
+      when:  '"host1" not in group_names'           
+      
+    - debug: msg={{result}} 
+      when:  '"host1" not in group_names'     
