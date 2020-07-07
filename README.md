@@ -1,3 +1,6 @@
+sh run.sh start "{'hosts':{'host1':{'name':'host1','ip':'172.21.28.226','port':22,'user':'root','pass':'kaziyuan@123'},'host2':{'name':'host2','ip':'172.21.28.225','port':22,'user':'root','pass':'kaziyuan@123'},'host3':{'name':'host3','ip':'172.21.28.224','port':22,'user':'root','pass':'kaziyuan@123'}}}"
+
+
 ```
 rm -rf channel-artifacts crypto-config
 ../bin/cryptogen generate --config=./crypto-config.yaml

@@ -1,6 +1,0 @@
-[host1]
-172.21.28.226 ansible_ssh_port=22 ansible_ssh_user=root ansible_ssh_pass=kaziyuan@123
-[host2]
-172.21.28.225 ansible_ssh_port=22 ansible_ssh_user=root ansible_ssh_pass=kaziyuan@123
-[host3]
-172.21.28.224 ansible_ssh_port=22 ansible_ssh_user=root ansible_ssh_pass=kaziyuan@123

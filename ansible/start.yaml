@@ -6,6 +6,13 @@
       file:
         path: "{{ lookup('env', 'PWD') }}"
         state: directory
+        
+    - name: set exec mod
+      file:
+        path: "{{ lookup('env', 'PWD') }}/scripts"
+        state: directory
+        mode: 0775
+        recurse: yes
 
     - stat:
         path: "/root/bin/cryptogen"
@@ -24,104 +31,61 @@
       when: fabric_tools.stat.exists == false
 
 - hosts: host1
-  environment:
-    orderer0_orderer_example_com: "172.21.28.226"
-    couchdb0_example_com: "172.21.28.226"
-    peer0_org1_example_com: "172.21.28.226"
-    kafka0_example_com: "172.21.28.226"
-    zookeeper0_example_com: "172.21.28.226"
-    orderer1_orderer_example_com: "172.21.28.225"
-    couchdb1_example_com: "172.21.28.225" 
-    peer0_org2_example_com: "172.21.28.225" 
-    kafka1_example_com: "172.21.28.225" 
-    zookeeper1_example_com: "172.21.28.225" 
-    orderer2_orderer_example_com: "172.21.28.224"
-    couchdb2_example_com: "172.21.28.224" 
-    peer0_org3_example_com: "172.21.28.224" 
-    kafka2_example_com: "172.21.28.224" 
-    zookeeper2_example_com: "172.21.28.224" 
-    IMAGE_TAG: "latest"
-    COMPOSE_PROJECT_NAME: "test"
   tasks: 
       
     - name: generate config block
-      command: "sh {{ lookup('env', 'PWD') }}/init.sh {{ lookup('env', 'PWD') }}"
+      command: "sh {{ lookup('env', 'PWD') }}/scripts/generate.sh {{ lookup('env', 'PWD') }}"
       register: result
       
     - debug: msg={{result}}   
  
-    - name: start network
-      command: "docker-compose -f  /root/kafka/docker-compose-host1.yaml  up -d"  
-    
+  
 
     
-    
-- hosts: host2
-  environment:
-    orderer0_orderer_example_com: "172.21.28.226"
-    couchdb0_example_com: "172.21.28.226"
-    peer0_org1_example_com: "172.21.28.226"
-    kafka0_example_com: "172.21.28.226"
-    zookeeper0_example_com: "172.21.28.226"
-    orderer1_orderer_example_com: "172.21.28.225"
-    couchdb1_example_com: "172.21.28.225" 
-    peer0_org2_example_com: "172.21.28.225" 
-    kafka1_example_com: "172.21.28.225" 
-    zookeeper1_example_com: "172.21.28.225" 
-    orderer2_orderer_example_com: "172.21.28.224"
-    couchdb2_example_com: "172.21.28.224" 
-    peer0_org3_example_com: "172.21.28.224" 
-    kafka2_example_com: "172.21.28.224" 
-    zookeeper2_example_com: "172.21.28.224" 
-    IMAGE_TAG: "latest"
-    COMPOSE_PROJECT_NAME: "test"
-  tasks:
-
-    - name: copy explorer script file
-      synchronize:
-        src:  "/root/kafka/"
-        dest: "/root/kafka/"    
-        
-    - name: start network
-      command: "docker-compose -f  /root/kafka/docker-compose-host2.yaml  up -d "
-
-
-
-- hosts: host3
-  environment:
-    orderer0_orderer_example_com: "172.21.28.226"
-    couchdb0_example_com: "172.21.28.226"
-    peer0_org1_example_com: "172.21.28.226"
-    kafka0_example_com: "172.21.28.226"
-    zookeeper0_example_com: "172.21.28.226"
-    orderer1_orderer_example_com: "172.21.28.225"
-    couchdb1_example_com: "172.21.28.225" 
-    peer0_org2_example_com: "172.21.28.225" 
-    kafka1_example_com: "172.21.28.225" 
-    zookeeper1_example_com: "172.21.28.225" 
-    orderer2_orderer_example_com: "172.21.28.224"
-    couchdb2_example_com: "172.21.28.224" 
-    peer0_org3_example_com: "172.21.28.224" 
-    kafka2_example_com: "172.21.28.224" 
-    zookeeper2_example_com: "172.21.28.224" 
-    IMAGE_TAG: "latest"
-    COMPOSE_PROJECT_NAME: "test"
-  tasks:
-
-    - name: copy explorer script file
-      synchronize:
-        src:  "/root/kafka/"
-        dest: "/root/kafka/" 
-      
-    - name: start network
-      command: "docker-compose -f  /root/kafka/docker-compose-host3.yaml  up -d"     
-      
-       
     
 - hosts: all
+  environment:
+    orderer0_orderer_example_com: "{{ hosts.host1.ip }}"
+    couchdb0_example_com: "{{ hosts.host1.ip }}"
+    peer0_org1_example_com: "{{ hosts.host1.ip }}"
+    kafka0_example_com: "{{ hosts.host1.ip }}"
+    zookeeper0_example_com: "{{ hosts.host1.ip }}"
+    orderer1_orderer_example_com: "{{ hosts.host2.ip }}"
+    couchdb1_example_com: "{{ hosts.host2.ip }}" 
+    peer0_org2_example_com: "{{ hosts.host2.ip }}" 
+    kafka1_example_com: "{{ hosts.host2.ip }}" 
+    zookeeper1_example_com: "{{ hosts.host2.ip }}" 
+    orderer2_orderer_example_com: "{{ hosts.host3.ip }}"
+    couchdb2_example_com: "{{ hosts.host3.ip }}" 
+    peer0_org3_example_com: "{{ hosts.host3.ip }}" 
+    kafka2_example_com: "{{ hosts.host3.ip }}" 
+    zookeeper2_example_com: "{{ hosts.host3.ip }}" 
+    IMAGE_TAG: "latest"
+    COMPOSE_PROJECT_NAME: "test"
   tasks:
-  
-    - name: timed wait
+
+    - name: start network in host1
+      command: "docker-compose -f  /root/kafka/docker-compose-host1.yaml  up -d "
+      when:  '"host1" in group_names' 
+
+
+    - name: copy script file
+      synchronize:
+        src:  "/root/kafka/"
+        dest: "/root/kafka/"  
+      when:  '"host1" not in group_names'         
+        
+    - name: start network in host2
+      command: "docker-compose -f  /root/kafka/docker-compose-host2.yaml  up -d "
+      when:  '"host2" in group_names' 
+
+      
+    - name: start network in host3
+      command: "docker-compose -f  /root/kafka/docker-compose-host3.yaml  up -d"     
+      when:  '"host3" in group_names'       
+       
+
+    - name: timed wait for kafka cluster boot
       pause: seconds=30 
 
   

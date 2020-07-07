@@ -1,8 +1,11 @@
 CUR_DIR=$1
+
 cd $CUR_DIR
 rm -rf channel-artifacts crypto-config
-/root/bin/cryptogen generate --config=${CUR_DIR}/crypto-config.yaml
 mkdir channel-artifacts
+
+/root/bin/cryptogen generate --config=${CUR_DIR}/crypto-config.yaml
+
 export FABRIC_CFG_PATH=$CUR_DIR
 /root/bin/configtxgen -profile KafkaOrdererGenesis -channelID byfn-sys-channel -outputBlock ${CUR_DIR}/channel-artifacts/genesis.block
 

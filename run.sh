@@ -8,12 +8,18 @@ fi
 echo $CURDIR
 
 export ANSIBLE_HOST_KEY_CHECKING=False
-export ANSIBLE_INVENTORY="ansible/inventory/hosts"
+export ANSIBLE_INVENTORY="${CURDIR}/ansible/inventory/hosts"
+
+function setInventoryHosts(){
+	echo "# setInventoryHosts"
+	echo $1
+	ansible-playbook $CURDIR/ansible/set_inventory.yaml  -e $1
+}
 
 function startNetWork(){
 	
 	echo "# start network"
-	ansible-playbook $CURDIR/ansible/start.yaml  
+	ansible-playbook $CURDIR/ansible/start.yaml  -e $1
 	
 }
 
@@ -27,17 +33,21 @@ function stopNetWork(){
 #Print the usage message
 function printHelp () {
   echo "Usage: "
-  echo "   sh run.sh start|stop "
+  echo "   sh run.sh start HOSTS_JSON |stop "
 }
 
-if [ $# -ne 1 ];
+if [ $# -lt 1 ];
 then
 	printHelp
 	exit
 fi
 
+if [ ! -f $ANSIBLE_INVENTORY ];then
+	setInventoryHosts $2
+fi
+
 if [ $1 == "start" ] ; then	
-	startNetWork
+	startNetWork $2
 elif [ $1 == "stop" ] ; then
 	stopNetWork
 else 
